@@ -35,17 +35,25 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_binary(JNIEnv *env, job
 void JNICALL
 Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_reduceColors(JNIEnv *env, jobject instance,
                                                                       jlong matAddr, jint level) {
-    Mat &mGr = *(Mat *) matAddr;
-    const int channels = mGr.channels();
+    Mat &mat = *(Mat *) matAddr;
+    const int channels = mat.channels();
     switch (channels) {
         case 1: {
             MatIterator_<uchar> it, end;
-            for (it = mGr.begin<uchar>(), end = mGr.end<uchar>(); it != end; ++it)
+            for (it = mat.begin<uchar>(), end = mat.end<uchar>(); it != end; ++it)
                 *it = ((*it / level) * level) + level / 2;
             break;
         }
-        case 3:
+        case 4: {
+            MatIterator_<Vec4b> it, end;
+            for (it = mat.begin<Vec4b>(), end = mat.end<Vec4b>(); it != end; ++it) {
+                (*it)[0] = (((*it)[0] / level) * level) + level / 2;
+                (*it)[1] = (((*it)[1] / level) * level) + level / 2;
+                (*it)[2] = (((*it)[2] / level) * level) + level / 2;
+
+            }
             break;
+        }
         default:
             break;
     }
