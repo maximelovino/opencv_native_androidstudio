@@ -50,7 +50,6 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_reduceColors(JNIEnv *en
                 (*it)[0] = (((*it)[0] / level) * level) + level / 2;
                 (*it)[1] = (((*it)[1] / level) * level) + level / 2;
                 (*it)[2] = (((*it)[2] / level) * level) + level / 2;
-
             }
             break;
         }
@@ -58,4 +57,35 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_reduceColors(JNIEnv *en
             break;
     }
 }
+
+void JNICALL
+Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_sharpen(JNIEnv *env, jobject instance,
+                                                                 jlong matAddr,
+                                                                 jlong returnMatAddr) {
+
+    Mat &mat = *(Mat *) matAddr;
+    Mat &returnMat = *(Mat *) returnMatAddr;
+
+
+    int channels = mat.channels();
+    int nRows = mat.rows;
+    int nCols = mat.cols * channels;
+    /*if (mat.isContinuous()) {
+        nCols *= nRows;
+        nRows = 1;
+    }*/
+    int i, j;
+    uchar *precedent, *current, *next, *currentNew;
+    for (i = 1; i < nRows - 1; ++i) {
+        precedent = mat.ptr<uchar>(i - 1);
+        current = mat.ptr<uchar>(i);
+        next = mat.ptr<uchar>(i + 1);
+        currentNew = returnMat.ptr<uchar>(i);
+
+        for (j = channels; j < nCols - channels; ++j) {
+            currentNew[j] = saturate_cast<uchar>(5 * current[j] - current[j - channels] - next[j] - current[j + channels] - precedent[j]);
+        }
+    }
+}
+
 }
