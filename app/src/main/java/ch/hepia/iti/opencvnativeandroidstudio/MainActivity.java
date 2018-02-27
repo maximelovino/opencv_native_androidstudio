@@ -7,6 +7,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -14,12 +15,19 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     private static final String TAG = "OCVSample::Activity";
     private CameraBridgeViewBase _cameraBridgeViewBase;
+    private int filterLevel = 0;
+    private final int MAX_FILTER = 4;
+    private Mat kernelMedian;
+
+    private Mat kernelLaPlace;
+
 
     private BaseLoaderCallback _baseLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -31,6 +39,25 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                     // after opencv initialization
                     System.loadLibrary("native-lib");
                     _cameraBridgeViewBase.enableView();
+                    kernelMedian = new Mat(3, 3, CvType.CV_32F) {
+                        {
+                            for (int i = 0; i < 3; i++) {
+                                for (int j = 0; j < 3; j++) {
+                                    put(i, j, 1.0 / 9.0);
+                                }
+                            }
+                        }
+                    };
+
+                    kernelLaPlace = new Mat(3, 3, CvType.CV_32F) {
+                        {
+                            for (int i = 0; i < 3; i++) {
+                                for (int j = 0; j < 3; j++) {
+                                    put(i, j, (i == 1 && j == 1) ? 8 : -1);
+                                }
+                            }
+                        }
+                    };
                 }
                 break;
                 default: {
@@ -55,6 +82,14 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         _cameraBridgeViewBase = (CameraBridgeViewBase) findViewById(R.id.main_surface);
         _cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
         _cameraBridgeViewBase.setCvCameraViewListener(this);
+
+        _cameraBridgeViewBase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filterLevel++;
+                filterLevel %= MAX_FILTER;
+            }
+        });
     }
 
     @Override
@@ -113,15 +148,33 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        Mat matGray = inputFrame.rgba();
+        Mat matGray = inputFrame.gray();
         int channels = matGray.channels();
         //salt(matGray.getNativeObjAddr(), 2000);
         //binary(matGray.getNativeObjAddr());
         //reduceColors(matGray.getNativeObjAddr(), 16);
+
+        //sharpen(matGray.getNativeObjAddr(), mat.getNativeObjAddr());
+        if (filterLevel == 0) {
+            return matGray;
+        }
         Mat mat = new Mat(matGray.rows(), matGray.cols(), matGray.type());
-        sharpen(matGray.getNativeObjAddr(), mat.getNativeObjAddr());
+
+
+        applyKernel(matGray.getNativeObjAddr(), mat.getNativeObjAddr(), kernelMedian.getNativeObjAddr());
+        if (filterLevel == 1) {
+            return mat;
+        }
+
+
+        applyKernel(mat.getNativeObjAddr(), matGray.getNativeObjAddr(), kernelLaPlace.getNativeObjAddr());
+        if (filterLevel == 2) {
+            return matGray;
+        }
+        binaryThreshold(matGray.getNativeObjAddr(), mat.getNativeObjAddr());
         return mat;
     }
+
 
     public native void binary(long matAddrGray);
 
@@ -130,5 +183,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public native void reduceColors(long matAddr, int level);
 
     public native void sharpen(long matAddr, long returnMatAddr);
+
+    public native void applyKernel(long matAddr, long returnMatAddr, long kernelAddr);
+
+    public native void binaryThreshold(long matAddr, long returnMatAddr);
 }
 

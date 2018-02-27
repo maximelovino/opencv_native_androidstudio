@@ -83,9 +83,35 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_sharpen(JNIEnv *env, jo
         currentNew = returnMat.ptr<uchar>(i);
 
         for (j = channels; j < nCols - channels; ++j) {
-            currentNew[j] = saturate_cast<uchar>(5 * current[j] - current[j - channels] - next[j] - current[j + channels] - precedent[j]);
+            currentNew[j] = saturate_cast<uchar>(
+                    5 * current[j] - current[j - channels] - next[j] - current[j + channels] -
+                    precedent[j]);
         }
     }
 }
+
+void JNICALL
+Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyKernel(JNIEnv *env, jobject instance,
+                                                                      jlong matAddr,
+                                                                      jlong returnMatAddr,
+                                                                      jlong kernelAddr) {
+    Mat &mat = *(Mat *) matAddr;
+    Mat &matReturn = *(Mat *) returnMatAddr;
+    Mat &kernelMat = *(Mat *) kernelAddr;
+
+    filter2D(mat, matReturn, -1, kernelMat);
+}
+
+
+void JNICALL
+Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_binaryThreshold(JNIEnv *env, jobject instance,
+                                                                     jlong matAddr,
+                                                                     jlong returnMatAddr) {
+    Mat &mat = *(Mat *) matAddr;
+    Mat &matReturn = *(Mat *) returnMatAddr;
+
+    threshold(mat,matReturn,32,255,1);
+}
+
 
 }
