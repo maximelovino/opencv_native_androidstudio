@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <string>
+#include <android/log.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d/features2d.hpp>
@@ -92,9 +93,9 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_sharpen(JNIEnv *env, jo
 
 void JNICALL
 Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyKernel(JNIEnv *env, jobject instance,
-                                                                      jlong matAddr,
-                                                                      jlong returnMatAddr,
-                                                                      jlong kernelAddr) {
+                                                                     jlong matAddr,
+                                                                     jlong returnMatAddr,
+                                                                     jlong kernelAddr) {
     Mat &mat = *(Mat *) matAddr;
     Mat &matReturn = *(Mat *) returnMatAddr;
     Mat &kernelMat = *(Mat *) kernelAddr;
@@ -104,13 +105,45 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyKernel(JNIEnv *env
 
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_binaryThreshold(JNIEnv *env, jobject instance,
-                                                                     jlong matAddr,
-                                                                     jlong returnMatAddr) {
+Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_binaryThreshold(JNIEnv *env,
+                                                                         jobject instance,
+                                                                         jlong matAddr,
+                                                                         jlong returnMatAddr) {
     Mat &mat = *(Mat *) matAddr;
     Mat &matReturn = *(Mat *) returnMatAddr;
 
-    threshold(mat,matReturn,32,255,1);
+    threshold(mat, matReturn, 32, 255, 1);
+}
+
+void JNICALL
+Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyGrey(JNIEnv *env, jobject instance,
+                                                                   jlong matAddr,
+                                                                   jint x, jint y) {
+    Mat &mat = *(Mat *) matAddr;
+
+
+    if (x < 0 || x >= mat.cols || y < 0 || y >= mat.rows) {
+        return;
+    }
+
+
+    if (mat.at<uchar>(x, y) != 255) {
+        return;
+    }
+    __android_log_print(ANDROID_LOG_VERBOSE, "RECURSION", "(%d,%d)", x, y);
+    mat.at<uchar>(x, y) = 127;
+
+
+    for (int i = -1; i <= 1; ++i) {
+        for (int j = -1; j <= 1; ++j) {
+            if (i == 0 && j == 0) {
+                continue;
+            }
+            Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyGrey(env, instance,
+                                                                               matAddr, x + i,
+                                                                               y + j);
+        }
+    }
 }
 
 
