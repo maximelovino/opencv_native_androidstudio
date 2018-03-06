@@ -115,6 +115,70 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_binaryThreshold(JNIEnv 
     threshold(mat, matReturn, 32, 255, 1);
 }
 
+
+void JNICALL Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_lab3(JNIEnv *env,
+                                                                           jobject instance,
+                                                                           jlong matAddr,
+                                                                           jlong returnMatAddr,
+                                                                           jint filterLevel) {
+
+    Mat &mat = *(Mat *) matAddr;
+    Mat &matReturn = *(Mat *) returnMatAddr;
+    Mat detected_edges;
+
+    if (filterLevel == 0) {
+        mat.copyTo(matReturn);
+        return;
+    }
+
+
+    blur(mat, detected_edges, Size(3, 3));
+
+    Canny(detected_edges, detected_edges, 50, 200);
+
+
+    if (filterLevel == 1) {
+        matReturn = Scalar::all(0);
+        mat.copyTo(matReturn, detected_edges);
+    }
+
+    if (filterLevel == 2) {
+        Mat dst;
+        cvtColor(detected_edges, dst, CV_GRAY2BGR);
+        vector<Vec4i> lines;
+        HoughLinesP(detected_edges, lines, 1, CV_PI / 180, 50, 50, 10);
+
+        for (size_t i = 0; i < lines.size(); i++) {
+            Vec4i l = lines[i];
+            line(dst, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, CV_AA);
+        }
+        matReturn = Scalar::all(0);
+        dst.copyTo(matReturn);
+        return;
+    }
+
+    if (filterLevel == 3) {
+        Mat dst;
+
+        vector<Vec3f> circles;
+
+        HoughCircles(mat, circles, CV_HOUGH_GRADIENT, 1, mat.rows / 8, 200, 100, 0, 0);
+        cvtColor(mat, dst, CV_GRAY2BGR);
+
+        for (size_t i = 0; i < circles.size(); i++) {
+            Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+            int radius = cvRound(circles[i][2]);
+            // circle center
+            circle(dst, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+            // circle outline
+            circle(dst, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+        }
+        matReturn = Scalar::all(0);
+        dst.copyTo(matReturn);
+    }
+}
+
+
 void JNICALL
 Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyGrey(JNIEnv *env, jobject instance,
                                                                    jlong matAddr,

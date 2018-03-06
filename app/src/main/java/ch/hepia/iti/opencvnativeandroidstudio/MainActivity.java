@@ -24,8 +24,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private static final String TAG = "OCVSample::Activity";
     private CameraBridgeViewBase _cameraBridgeViewBase;
-    private int filterLevel = 0;
-    private final int MAX_FILTER = 4;
+    private int filterLevelLab2 = 0;
+    private int filterLevelLab3 = 0;
+    private final int MAX_FILTER_LAB2 = 4;
+    private final int MAX_FILTER_LAB3 = 4;
     private Mat kernelMedian;
 
     private Mat kernelLaPlace;
@@ -94,16 +96,17 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         _cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
         _cameraBridgeViewBase.setCvCameraViewListener(this);
 
-        Button toggleFilterBtn = findViewById(R.id.toggle_filter_btn);
+        Button toggleFilterLab2Btn = findViewById(R.id.toggle_filter_lab2_btn);
+        Button toggleFilterLab3Btn = findViewById(R.id.toggle_filter_lab3_btn);
         Button blockCameraBtn = findViewById(R.id.block_picture_btn);
 
-        toggleFilterBtn.setOnClickListener(new View.OnClickListener() {
+        toggleFilterLab2Btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filterLevel++;
-                filterLevel %= MAX_FILTER;
+                filterLevelLab2++;
+                filterLevelLab2 %= MAX_FILTER_LAB2;
                 String toDisplay = "Everything activated";
-                switch (filterLevel) {
+                switch (filterLevelLab2) {
                     case 0:
                         toDisplay = "Nothing activated";
                         break;
@@ -115,6 +118,32 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                         break;
                     case 3:
                         toDisplay = "Binary treshold activated";
+                        break;
+                    default:
+                        break;
+                }
+                Toast.makeText(getApplicationContext(), toDisplay, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        toggleFilterLab3Btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filterLevelLab3++;
+                filterLevelLab3 %= MAX_FILTER_LAB3;
+                String toDisplay = "Everything activated";
+                switch (filterLevelLab3) {
+                    case 0:
+                        toDisplay = "Nothing activated";
+                        break;
+                    case 1:
+                        toDisplay = "Canny activated";
+                        break;
+                    case 2:
+                        toDisplay = "Hough lines p activated";
+                        break;
+                    case 3:
+                        toDisplay = "Hough circles activated";
                         break;
                     default:
                         break;
@@ -230,6 +259,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat matGray = inputFrame.gray();
+        return lab3(matGray);
+    }
+
+    public Mat lab3(Mat mat) {
+        Mat output = new Mat(mat.rows(), mat.cols(), mat.type());
+        lab3(mat.getNativeObjAddr(), output.getNativeObjAddr(), filterLevelLab3);
+        return output;
+    }
+
+    public Mat lab2(Mat matGray) {
         int channels = matGray.channels();
 
         matrixHeight = matGray.height();
@@ -246,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
 
 
-        if (filterLevel == 0) {
+        if (filterLevelLab2 == 0) {
             lastMat = matGray;
             return matGray;
         }
@@ -254,14 +293,14 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
 
         applyKernel(matGray.getNativeObjAddr(), mat.getNativeObjAddr(), kernelMedian.getNativeObjAddr());
-        if (filterLevel == 1) {
+        if (filterLevelLab2 == 1) {
             lastMat = mat;
             return mat;
         }
 
 
         applyKernel(mat.getNativeObjAddr(), matGray.getNativeObjAddr(), kernelLaPlace.getNativeObjAddr());
-        if (filterLevel == 2) {
+        if (filterLevelLab2 == 2) {
             lastMat = matGray;
             return matGray;
         }
@@ -282,6 +321,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public native void applyKernel(long matAddr, long returnMatAddr, long kernelAddr);
 
     public native void binaryThreshold(long matAddr, long returnMatAddr);
+
+    public native void canny(long matAddr, long returnMatAddr);
+
+    public native void houghLinesP(long matAddr, long returnMatAddr);
+
+    public native void lab3(long matAddr, long returnMatAddr, int filterLevel);
 
     public native void applyGrey(long matAddr, int x, int y);
 }

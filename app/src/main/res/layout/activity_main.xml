@@ -25,10 +25,16 @@
             android:text="Block picture" />
 
         <Button
-            android:id="@+id/toggle_filter_btn"
+            android:id="@+id/toggle_filter_lab2_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Toggle filter" />
+            android:text="Toggle filter lab 2" />
+
+        <Button
+            android:id="@+id/toggle_filter_lab3_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Toggle filter lab 3" />
     </LinearLayout>
 
     <org.opencv.android.JavaCameraView
