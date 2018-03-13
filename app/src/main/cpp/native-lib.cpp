@@ -11,7 +11,7 @@ using namespace cv;
 extern "C"
 {
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_salt(JNIEnv *env, jobject instance,
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_salt(JNIEnv *env, jobject instance,
                                                               jlong matAddrGray,
                                                               jint nbrElem) {
     Mat &mGr = *(Mat *) matAddrGray;
@@ -23,7 +23,7 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_salt(JNIEnv *env, jobje
 }
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_binary(JNIEnv *env, jobject instance,
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_binary(JNIEnv *env, jobject instance,
                                                                 jlong matAddrGray) {
     Mat &mGr = *(Mat *) matAddrGray;
     for (int i = 0; i < mGr.cols; ++i) {
@@ -34,7 +34,7 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_binary(JNIEnv *env, job
 }
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_reduceColors(JNIEnv *env, jobject instance,
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_reduceColors(JNIEnv *env, jobject instance,
                                                                       jlong matAddr, jint level) {
     Mat &mat = *(Mat *) matAddr;
     const int channels = mat.channels();
@@ -60,7 +60,7 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_reduceColors(JNIEnv *en
 }
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_sharpen(JNIEnv *env, jobject instance,
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_sharpen(JNIEnv *env, jobject instance,
                                                                  jlong matAddr,
                                                                  jlong returnMatAddr) {
 
@@ -92,7 +92,7 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_sharpen(JNIEnv *env, jo
 }
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyKernel(JNIEnv *env, jobject instance,
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyKernel(JNIEnv *env, jobject instance,
                                                                      jlong matAddr,
                                                                      jlong returnMatAddr,
                                                                      jlong kernelAddr) {
@@ -105,7 +105,7 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyKernel(JNIEnv *env
 
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_binaryThreshold(JNIEnv *env,
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_binaryThreshold(JNIEnv *env,
                                                                          jobject instance,
                                                                          jlong matAddr,
                                                                          jlong returnMatAddr) {
@@ -116,7 +116,7 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_binaryThreshold(JNIEnv 
 }
 
 
-void JNICALL Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_lab3(JNIEnv *env,
+void JNICALL Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_lab3__JJI(JNIEnv *env,
                                                                            jobject instance,
                                                                            jlong matAddr,
                                                                            jlong returnMatAddr,
@@ -180,7 +180,7 @@ void JNICALL Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_lab3(JNIEn
 
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyGrey(JNIEnv *env, jobject instance,
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyGrey(JNIEnv *env, jobject instance,
                                                                    jlong matAddr,
                                                                    jint x, jint y) {
     Mat &mat = *(Mat *) matAddr;
@@ -203,11 +203,21 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyGrey(JNIEnv *env, 
             if (i == 0 && j == 0) {
                 continue;
             }
-            Java_ch_hepia_iti_opencvnativeandroidstudio_MainActivity_applyGrey(env, instance,
+            Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyGrey(env, instance,
                                                                                matAddr, x + i,
                                                                                y + j);
         }
     }
+}
+
+
+void JNICALL
+Java_ch_hepia_iti_opencvnativeandroidstudio_ColorDetectionActivity_hsvDetection(JNIEnv *env, jobject instance,
+                                                                            jlong matAddr,
+                                                                            jint hueMin, jint hueMax, jint satMin, jint satMax, jint valMin, jint valMax){
+    Mat &mat = *(Mat *) matAddr;
+    cvtColor(mat,mat,COLOR_RGB2HSV);
+    inRange(mat,Scalar(hueMin,satMin, valMin), Scalar(hueMax,satMax,valMax),mat);
 }
 
 
