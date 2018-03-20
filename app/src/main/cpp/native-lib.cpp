@@ -2,6 +2,8 @@
 #include <string>
 #include <android/log.h>
 #include <opencv2/core/core.hpp>
+#include <opencv2/objdetect.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d/features2d.hpp>
 
@@ -11,9 +13,10 @@ using namespace cv;
 extern "C"
 {
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_salt(JNIEnv *env, jobject instance,
-                                                              jlong matAddrGray,
-                                                              jint nbrElem) {
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_salt(JNIEnv *env,
+                                                                       jobject instance,
+                                                                       jlong matAddrGray,
+                                                                       jint nbrElem) {
     Mat &mGr = *(Mat *) matAddrGray;
     for (int k = 0; k < nbrElem; k++) {
         int i = rand() % mGr.cols;
@@ -23,8 +26,9 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_salt(JNIEnv *e
 }
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_binary(JNIEnv *env, jobject instance,
-                                                                jlong matAddrGray) {
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_binary(JNIEnv *env,
+                                                                         jobject instance,
+                                                                         jlong matAddrGray) {
     Mat &mGr = *(Mat *) matAddrGray;
     for (int i = 0; i < mGr.cols; ++i) {
         for (int j = 0; j < mGr.rows; ++j) {
@@ -34,8 +38,10 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_binary(JNIEnv 
 }
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_reduceColors(JNIEnv *env, jobject instance,
-                                                                      jlong matAddr, jint level) {
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_reduceColors(JNIEnv *env,
+                                                                               jobject instance,
+                                                                               jlong matAddr,
+                                                                               jint level) {
     Mat &mat = *(Mat *) matAddr;
     const int channels = mat.channels();
     switch (channels) {
@@ -60,9 +66,10 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_reduceColors(J
 }
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_sharpen(JNIEnv *env, jobject instance,
-                                                                 jlong matAddr,
-                                                                 jlong returnMatAddr) {
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_sharpen(JNIEnv *env,
+                                                                          jobject instance,
+                                                                          jlong matAddr,
+                                                                          jlong returnMatAddr) {
 
     Mat &mat = *(Mat *) matAddr;
     Mat &returnMat = *(Mat *) returnMatAddr;
@@ -92,10 +99,11 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_sharpen(JNIEnv
 }
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyKernel(JNIEnv *env, jobject instance,
-                                                                     jlong matAddr,
-                                                                     jlong returnMatAddr,
-                                                                     jlong kernelAddr) {
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyKernel(JNIEnv *env,
+                                                                              jobject instance,
+                                                                              jlong matAddr,
+                                                                              jlong returnMatAddr,
+                                                                              jlong kernelAddr) {
     Mat &mat = *(Mat *) matAddr;
     Mat &matReturn = *(Mat *) returnMatAddr;
     Mat &kernelMat = *(Mat *) kernelAddr;
@@ -106,9 +114,9 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyKernel(JN
 
 void JNICALL
 Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_binaryThreshold(JNIEnv *env,
-                                                                         jobject instance,
-                                                                         jlong matAddr,
-                                                                         jlong returnMatAddr) {
+                                                                                  jobject instance,
+                                                                                  jlong matAddr,
+                                                                                  jlong returnMatAddr) {
     Mat &mat = *(Mat *) matAddr;
     Mat &matReturn = *(Mat *) returnMatAddr;
 
@@ -116,11 +124,12 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_binaryThreshol
 }
 
 
-void JNICALL Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_lab3__JJI(JNIEnv *env,
-                                                                           jobject instance,
-                                                                           jlong matAddr,
-                                                                           jlong returnMatAddr,
-                                                                           jint filterLevel) {
+void JNICALL
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_lab3__JJI(JNIEnv *env,
+                                                                            jobject instance,
+                                                                            jlong matAddr,
+                                                                            jlong returnMatAddr,
+                                                                            jint filterLevel) {
 
     Mat &mat = *(Mat *) matAddr;
     Mat &matReturn = *(Mat *) returnMatAddr;
@@ -180,9 +189,10 @@ void JNICALL Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_l
 
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyGrey(JNIEnv *env, jobject instance,
-                                                                   jlong matAddr,
-                                                                   jint x, jint y) {
+Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyGrey(JNIEnv *env,
+                                                                            jobject instance,
+                                                                            jlong matAddr,
+                                                                            jint x, jint y) {
     Mat &mat = *(Mat *) matAddr;
 
 
@@ -203,22 +213,63 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyGrey(JNIE
             if (i == 0 && j == 0) {
                 continue;
             }
-            Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyGrey(env, instance,
-                                                                               matAddr, x + i,
-                                                                               y + j);
+            Java_ch_hepia_iti_opencvnativeandroidstudio_EdgeDetectionActivity_applyGrey(env,
+                                                                                        instance,
+                                                                                        matAddr,
+                                                                                        x + i,
+                                                                                        y + j);
         }
     }
 }
 
 
 void JNICALL
-Java_ch_hepia_iti_opencvnativeandroidstudio_ColorDetectionActivity_hsvDetection(JNIEnv *env, jobject instance,
-                                                                            jlong matAddr,
-                                                                            jint hueMin, jint hueMax, jint satMin, jint satMax, jint valMin, jint valMax){
+Java_ch_hepia_iti_opencvnativeandroidstudio_ColorDetectionActivity_hsvDetection(JNIEnv *env,
+                                                                                jobject instance,
+                                                                                jlong matAddr,
+                                                                                jint hueMin,
+                                                                                jint hueMax,
+                                                                                jint satMin,
+                                                                                jint satMax,
+                                                                                jint valMin,
+                                                                                jint valMax) {
     Mat &mat = *(Mat *) matAddr;
-    cvtColor(mat,mat,COLOR_RGB2HSV);
-    inRange(mat,Scalar(hueMin,satMin, valMin), Scalar(hueMax,satMax,valMax),mat);
+    cvtColor(mat, mat, COLOR_RGB2HSV);
+    inRange(mat, Scalar(hueMin, satMin, valMin), Scalar(hueMax, satMax, valMax), mat);
 }
 
+void JNICALL
+Java_ch_hepia_iti_opencvnativeandroidstudio_FaceDetectionActivity_detectFaces(JNIEnv *env,
+                                                                              jobject instance,
+                                                                              jlong matAddr) {
+    Mat &mat = *(Mat *) matAddr;
+    Mat matGray;
+    cvtColor(mat,matGray,COLOR_RGBA2GRAY);
+    //These files are also stored in res/classifierAssets
+    Mat hat = imread("/sdcard/ClassifierApp/cowboy_hat.png", IMREAD_UNCHANGED);
+    CascadeClassifier classifier("/sdcard/ClassifierApp/faceClassifier.xml");
+    vector<Rect> faces;
+    classifier.detectMultiScale(matGray, faces, 1.1, 3, CV_HAAR_SCALE_IMAGE, Size(100, 100));
+
+    for (size_t i = 0; i < faces.size(); i++) {
+        //rectangle(mat, faces[i], Scalar(255));
+        int baseX = faces[i].x;
+        int baseY = faces[i].y;
+        double factor = (double)faces[i].width / hat.cols;
+        resize(hat, hat,Size(faces[i].width,(int)(hat.rows*factor)));
+
+        //We check if the hat fits in the image
+        if (baseY - hat.rows >= 0 && baseX - hat.cols >= 0 && baseX + hat.cols < mat.cols) {
+            //We copy and avoid all transparent pixels
+            for (int j = 0; j < hat.rows; ++j) {
+                for (int k = 0; k < hat.cols; ++k) {
+                    if (hat.at<Vec4b>(j,k)[3] > 100){
+                        mat.at<Vec4b>(baseY-hat.rows + j, baseX + k) = hat.at<Vec4b>(j,k);
+                    }
+                }
+            }
+        }
+    }
+}
 
 }

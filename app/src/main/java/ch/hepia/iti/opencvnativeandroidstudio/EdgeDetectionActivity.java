@@ -89,7 +89,7 @@ public class EdgeDetectionActivity extends AppCompatActivity implements CameraBr
 
         // Permissions for Android 6+
         ActivityCompat.requestPermissions(EdgeDetectionActivity.this,
-                new String[]{Manifest.permission.CAMERA},
+                new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE},
                 1);
 
         _cameraBridgeViewBase = (CameraBridgeViewBase) findViewById(R.id.main_surface);

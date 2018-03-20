@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button edgeDetectionBtn = findViewById(R.id.edge_detect_btn);
         Button colorDetectionBtn = findViewById(R.id.color_detect_btn);
+        Button faceDetectionBtn = findViewById(R.id.face_detect_btn);
 
         edgeDetectionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -27,6 +28,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this,ColorDetectionActivity.class));
+            }
+        });
+
+        faceDetectionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,FaceDetectionActivity.class));
             }
         });
     }
