@@ -32,6 +32,9 @@
         <activity
             android:name=".FaceDetectionActivity"
             android:screenOrientation="landscape" />
+        <activity
+            android:name=".ExamActivity"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>
