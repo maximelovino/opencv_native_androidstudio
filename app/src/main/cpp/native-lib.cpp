@@ -249,7 +249,7 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_FaceDetectionActivity_detectFaces(JN
     Mat hat = imread("/sdcard/ClassifierApp/cowboy_hat.png", IMREAD_UNCHANGED);
     CascadeClassifier classifier("/sdcard/ClassifierApp/faceClassifier.xml");
     vector<Rect> faces;
-    classifier.detectMultiScale(matGray, faces, 1.1, 3, CV_HAAR_SCALE_IMAGE, Size(100, 100));
+    classifier.detectMultiScale(matGray, faces, 1.1, 3, CV_HAAR_SCALE_IMAGE, Size(300, 300));
 
     for (size_t i = 0; i < faces.size(); i++) {
         //rectangle(mat, faces[i], Scalar(255));
