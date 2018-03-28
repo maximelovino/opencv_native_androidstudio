@@ -1,3 +1,7 @@
+/**
+ * @author Maxime Lovino
+ */
+
 #include <jni.h>
 #include <string>
 #include <android/log.h>
@@ -244,7 +248,7 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_FaceDetectionActivity_detectFaces(JN
                                                                               jlong matAddr) {
     Mat &mat = *(Mat *) matAddr;
     Mat matGray;
-    cvtColor(mat,matGray,COLOR_RGBA2GRAY);
+    cvtColor(mat, matGray, COLOR_RGBA2GRAY);
     //These files are also stored in res/classifierAssets
     Mat hat = imread("/sdcard/ClassifierApp/cowboy_hat.png", IMREAD_UNCHANGED);
     CascadeClassifier classifier("/sdcard/ClassifierApp/faceClassifier.xml");
@@ -255,16 +259,16 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_FaceDetectionActivity_detectFaces(JN
         //rectangle(mat, faces[i], Scalar(255));
         int baseX = faces[i].x;
         int baseY = faces[i].y;
-        double factor = (double)faces[i].width / hat.cols;
-        resize(hat, hat,Size(faces[i].width,(int)(hat.rows*factor)));
+        double factor = (double) faces[i].width / hat.cols;
+        resize(hat, hat, Size(faces[i].width, (int) (hat.rows * factor)));
 
         //We check if the hat fits in the image
         if (baseY - hat.rows >= 0 && baseX - hat.cols >= 0 && baseX + hat.cols < mat.cols) {
             //We copy and avoid all transparent pixels
             for (int j = 0; j < hat.rows; ++j) {
                 for (int k = 0; k < hat.cols; ++k) {
-                    if (hat.at<Vec4b>(j,k)[3] > 100){
-                        mat.at<Vec4b>(baseY-hat.rows + j, baseX + k) = hat.at<Vec4b>(j,k);
+                    if (hat.at<Vec4b>(j, k)[3] > 100) {
+                        mat.at<Vec4b>(baseY - hat.rows + j, baseX + k) = hat.at<Vec4b>(j, k);
                     }
                 }
             }
@@ -272,4 +276,76 @@ Java_ch_hepia_iti_opencvnativeandroidstudio_FaceDetectionActivity_detectFaces(JN
     }
 }
 
+void JNICALL
+Java_ch_hepia_iti_opencvnativeandroidstudio_ExamActivity_detection(JNIEnv *env, jobject instance,
+                                                                   jlong matAddr,
+                                                                   jlong returnMatAddr) {
+
+    Mat &mat = *(Mat *) matAddr;
+    Mat &matReturn = *(Mat *) returnMatAddr;
+    Mat detected_edges;
+
+
+    blur(mat, detected_edges, Size(3, 3));
+
+    Canny(detected_edges, detected_edges, 50, 200);
+
+    Mat dst;
+
+    vector<Vec4i> lines;
+    HoughLinesP(detected_edges, lines, 1, CV_PI / 180, 100, 50, 10);
+
+    vector<Vec3f> circles;
+
+    HoughCircles(mat, circles, CV_HOUGH_GRADIENT, 1, mat.rows / 8, 200, 40, 0, 0);
+    cvtColor(mat, dst, CV_GRAY2BGR);
+    double topYLine = mat.rows;
+    double bottomYLine = 0;
+    __android_log_print(ANDROID_LOG_VERBOSE, "LINES", "%d", lines.size());
+    for (size_t i = 0; i < lines.size(); i++) {
+        Vec4i l = lines[i];
+        line(dst, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, CV_AA);
+        if (l[1] < topYLine) {
+            topYLine = l[1];
+        } else if (l[1] > bottomYLine) {
+            bottomYLine = l[1];
+        }
+    }
+
+    int whiteCircles = 0;
+    int blackCircles = 0;
+
+    for (size_t i = 0; i < circles.size(); i++) {
+        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+        int radius = cvRound(circles[i][2]);
+        if (mat.at<uchar>(center) > 100) {
+            Scalar color = Scalar(255, 0, 0);
+            if (center.y > topYLine && center.y < bottomYLine) {
+                whiteCircles++;
+                rectangle(dst, Point(center.x - radius, center.y - radius),
+                          Point(center.x + radius, center.y + radius), color, 5);
+            }
+            circle(dst, center, radius, color, 3, 8, 0);
+        } else {
+            Scalar color = Scalar(0, 0, 255);
+            if (center.y > topYLine && center.y < bottomYLine) {
+                blackCircles++;
+                rectangle(dst, Point(center.x - radius, center.y - radius),
+                          Point(center.x + radius, center.y + radius), color, 5);
+            }
+            circle(dst, center, radius, color, 3, 8, 0);
+        }
+    }
+
+    matReturn = Scalar::all(0);
+    dst.copyTo(matReturn);
+    putText(matReturn,
+            whiteCircles > blackCircles ? "White wins" : whiteCircles < blackCircles ? "Black wins"
+                                                                                     : "Draw",
+            Point(0, 50), FONT_HERSHEY_SIMPLEX, 2, Scalar(255, 0, 0));
+    return;
 }
+
+}
+
+

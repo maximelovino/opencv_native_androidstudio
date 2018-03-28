@@ -1,3 +1,7 @@
+/**
+ * @author Maxime Lovino
+ */
+
 package ch.hepia.iti.opencvnativeandroidstudio;
 
 import android.Manifest;
@@ -20,22 +24,6 @@ public class ExamActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private static final String TAG = "OCVSample::Activity";
     private CameraBridgeViewBase _cameraBridgeViewBase;
-    private int filterLevelLab2 = 0;
-    private int filterLevelLab3 = 0;
-    private final int MAX_FILTER_LAB2 = 4;
-    private final int MAX_FILTER_LAB3 = 4;
-    private Mat kernelMedian;
-
-    private Mat kernelLaPlace;
-    private Boolean blockedCamera = false;
-    private float[] lastTouchDownXY = new float[2];
-    private Mat lastMat;
-    private float matrixHeight;
-    private float matrixWidth;
-    private float surfaceWidth;
-    private float surfaceHeight;
-    private float matrixWidthOnView;
-    private float matrixHeightOnView;
 
 
     private BaseLoaderCallback _baseLoaderCallback = new BaseLoaderCallback(this) {
@@ -137,8 +125,12 @@ public class ExamActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        Mat rgb = inputFrame.rgba();
-        return rgb;
+        Mat gray = inputFrame.gray();
+        Mat returnMat = new Mat(gray.rows(),gray.cols(),gray.type());
+        detection(gray.getNativeObjAddr(),returnMat.getNativeObjAddr());
+        return returnMat;
     }
+
+    public native void detection(long matAddr, long matReturnAddr);
 }
 
